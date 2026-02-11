@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hug Me! 🤗</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4081;
+            --blue-soft: #e3f2fd;
+            --glass: rgba(255, 255, 255, 0.85);
+            --scan-color: #00ff00;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #111;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* --- SCREENS --- */
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: 0.5s; z-index: 1;
+            background: #111; /* Default dark */
+        }
+        .screen.active { opacity: 1; pointer-events: auto; z-index: 10; }
+
+        /* --- 1. LOCK SCREEN (Glitch Theme) --- */
+        .glitch-text {
+            font-family: 'Press Start 2P', cursive; color: #fff;
+            font-size: 1.5rem; position: relative; animation: glitch 1s infinite;
+        }
+        .pass-input {
+            margin-top: 20px; padding: 15px; border-radius: 5px; border: 2px solid #333;
+            background: #000; color: #0f0; font-family: monospace; text-align: center;
+            width: 200px; outline: none;
+        }
+        
+        /* --- 2. FAKE SCANNER --- */
+        .scan-overlay {
+            position: relative; width: 300px; height: 300px;
+            border: 4px solid var(--scan-color); border-radius: 20px;
+            overflow: hidden; background: rgba(0, 255, 0, 0.1);
+        }
+        .scan-line {
+            width: 100%; height: 5px; background: var(--scan-color);
+            box-shadow: 0 0 10px var(--scan-color);
+            position: absolute; top: 0; animation: scanMove 2s infinite linear;
+        }
+        .scan-text { color: var(--scan-color); font-family: monospace; margin-top: 20px; }
+
+        /* --- 3. GAME (Hug Charger) --- */
+        .game-btn {
+            width: 150px; height: 150px; border-radius: 50%;
+            background: radial-gradient(circle, #ff4081, #c60055);
+            border: none; color: white; font-weight: bold; font-size: 1.2rem;
+            box-shadow: 0 0 20px rgba(255, 64, 129, 0.5);
+            cursor: pointer; transition: transform 0.1s;
+        }
+        .game-btn:active { transform: scale(0.9); }
+        .progress-bar {
+            width: 80%; height: 20px; background: #333; margin-top: 30px;
+            border-radius: 10px; overflow: hidden;
+        }
+        .progress-fill { width: 0%; height: 100%; background: #0f0; transition: width 0.2s; }
+
+        /* --- 4/5. PUB G THEME --- */
+        .bg-pubg { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://wallpaperaccess.com/full/1252324.jpg'); background-size: cover; color: white; text-align: center; padding: 20px; }
+        .option-btn {
+            margin-top: 20px; padding: 12px 30px; border-radius: 50px;
+            background: rgba(255,255,255,0.1); border: 2px solid #fff; color: white;
+            cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;
+        }
+        .option-btn:hover { background: white; color: black; box-shadow: 0 0 15px white; }
+
+        /* --- 6. AESTHETIC FLOWERS (CSS Pattern) --- */
+        .bg-flowers {
+            background-color: var(--blue-soft);
+            background-image: radial-gradient(#b3e5fc 15%, transparent 16%), radial-gradient(#b3e5fc 15%, transparent 16%);
+            background-size: 20px 20px; background-position: 0 0, 10px 10px;
+            color: #333;
+        }
+        .white-board {
+            background: white; padding: 40px; border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1); border: 8px solid #f0f0f0;
+            transform: rotate(-2deg); width: 90%; max-width: 350px; text-align: center;
+        }
+
+        /* --- POPUPS & VIDEO --- */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none;
+            justify-content: center; align-items: center; flex-direction: column; z-index: 100;
+        }
+        .video-wrapper {
+            width: 90%; max-width: 350px; border: 2px solid white;
+            border-radius: 10px; overflow: hidden; margin-bottom: 20px;
+        }
+        video { width: 100%; display: block; }
+
+        /* --- 7. COUNTDOWN & RAIN --- */
+        .rain-emoji { position: absolute; animation: fall 3s linear infinite; }
+        .timer-text { font-size: 4rem; color: #ff4081; font-weight: 800; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes glitch {
+            0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) } 100% { transform: translate(0) }
+        }
+        @keyframes scanMove { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        @keyframes fall { to { transform: translateY(110vh); } }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        .shake { animation: shake 0.3s ease-in-out; border-color: red !important; }
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 1s forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="s1" class="screen active">
+        <h1 class="glitch-text">SYSTEM LOCKED</h1>
+        <p style="color: #666; font-size: 0.8rem; margin-top: 10px;">Security Level: Ultra</p>
+        <input type="password" id="passInput" class="pass-input" placeholder="ENTER CODE">
+        <button class="option-btn" onclick="checkPass()">ACCESS</button>
+    </div>
+
+    <div id="s2" class="screen">
+        <div class="scan-overlay">
+            <div class="scan-line"></div>
+            <div style="width:100%; height:100%; background: url('https://cdn-icons-png.flaticon.com/512/3135/3135715.png'); background-size: cover; opacity: 0.5;"></div>
+        </div>
+        <p id="scanText" class="scan-text">INITIALIZING SCAN...</p>
+    </div>
+
+    <div id="s3" class="screen" style="background: #222;">
+        <h2 style="color:white; margin-bottom: 20px;">BATTERY LOW! 🪫</h2>
+        <p style="color:#aaa; margin-bottom: 30px;">Tap fast to charge the Hug!</p>
+        <button class="game-btn" onclick="chargeHug()">TAP ME!</button>
+        <div class="progress-bar"><div id="hugMeter" class="progress-fill"></div></div>
+        <button id="gameCont" class="option-btn hidden" onclick="nextScreen('s4')">Power Full! Continue</button>
+    </div>
+
+    <div id="s4" class="screen bg-pubg">
+        <h2>You know I play mobile games a lot. 🎮</h2>
+        <p>Actually I play shooting games like PUBG, COD etc...</p>
+        <br>
+        <h3>But there is a problem with me you know ??</h3>
+        <button class="option-btn" onclick="nextScreen('s5')">what problem?</button>
+    </div>
+
+    <div id="s5" class="screen bg-pubg">
+        <h2>You know I am a bad shooter ? 🔫</h2>
+        <button id="whyBtn" class="option-btn" onclick="revealShooterLine()">why ?</button>
+        
+        <div id="shooterReveal" class="hidden fade-in" style="background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; margin-top: 20px;">
+            <h3 style="color: #ff4081;">Cause I keep on missing you 😭</h3>
+            <p>I am even missing you right now !</p>
+            <button class="option-btn" onclick="nextScreen('s6')">aww hug me 🤗</button>
+        </div>
+    </div>
+
+    <div id="s6" class="screen bg-flowers">
+        <div class="white-board">
+            <h1 style="color: #333;">Meri banogi kya ? 🥺</h1>
+            <button class="option-btn" style="background: #ff4081; border:none;" onclick="openProposalVideo()">itni jaldi to nhi 😁</button>
+        </div>
+    </div>
+
+    <div id="popVideo1" class="popup-overlay">
+        <div class="video-wrapper">
+            <video id="vid1" playsinline>
+                <source src="video1.mp4" type="video/mp4">
+            </video>
+        </div>
+        <button id="yesBtn" class="option-btn hidden" onclick="startCountdownFlow()">Yes, I will be yours 🫂🤭</button>
+    </div>
+
+    <div id="s7" class="screen" style="background: #fff;">
+        <div id="rainContainer"></div>
+        <h2 style="color: #333; margin-bottom:20px;">Surprise Loading...</h2>
+        <div id="timer" class="timer-text">6</div>
+        
+        <div id="giftPopup" class="hidden fade-in" style="position:absolute; background:white; padding:30px; border-radius:20px; box-shadow:0 10px 50px rgba(0,0,0,0.3); text-align:center; border: 2px solid #ff4081;">
+            <h3>Ek chota sa gift meri taraf se apke liye 🙂❤️</h3>
+            <button class="option-btn" style="background:#ff4081; border:none;" onclick="nextScreen('s8')">show me 🫠</button>
+        </div>
+    </div>
+
+    <div id="s8" class="screen" style="background: #000;">
+        <div class="video-wrapper" style="max-width: 100%; border:none;">
+            <video id="vid2" playsinline>
+                <source src="video2.mp4" type="video/mp4">
+            </video>
+        </div>
+        <button id="finalHugBtn" class="option-btn hidden" style="box-shadow: 0 0 20px #ff4081; border-color: #ff4081;">mujhe wp mein jhappi dena mat bhulna 🤭🧿❤️❤️</button>
+    </div>
+
+    <script>
+        // --- 1. SECURITY ---
+        function checkPass() {
+            const val = document.getElementById('passInput').value.toLowerCase();
+            // "hugme" base64 is "aHVnbWU="
+            if(btoa(val) === "aHVnbWU=") {
+                startFakeScan();
+            } else {
+                const inp = document.getElementById('passInput');
+                inp.classList.add('shake');
+                setTimeout(()=>inp.classList.remove('shake'), 300);
+            }
+        }
+
+        // --- 2. FAKE SCAN ---
+        function startFakeScan() {
+            document.querySelector('.screen.active').classList.remove('active');
+            document.getElementById('s2').classList.add('active');
+            
+            const txt = document.getElementById('scanText');
+            setTimeout(() => txt.innerText = "ANALYZING FACE...", 1500);
+            setTimeout(() => txt.innerText = "CUTENESS OVERLOAD DETECTED!", 3000);
+            setTimeout(() => txt.innerText = "ACCESS GRANTED ✅", 4500);
+            setTimeout(() => nextScreen('s3'), 5500);
+        }
+
+        // --- NAVIGATION ---
+        function nextScreen(id) {
+            const current = document.querySelector('.screen.active');
+            if(current) current.classList.remove('active');
+            
+            // Close any popups
+            document.getElementById('popVideo1').style.display = 'none';
+            
+            const next = document.getElementById(id);
+            next.classList.add('active');
+
+            if(id === 's8') playVid2();
+        }
+
+        // --- 3. GAME LOGIC ---
+        let charge = 0;
+        function chargeHug() {
+            charge += 10;
+            document.getElementById('hugMeter').style.width = charge + "%";
+            if(charge >= 100) {
+                document.getElementById('gameCont').classList.remove('hidden');
+                document.querySelector('.game-btn').innerText = "FULL! ❤️";
+                document.querySelector('.game-btn').disabled = true;
+            }
+        }
+
+        // --- 5. SHOOTER REVEAL ---
+        function revealShooterLine() {
+            document.getElementById('whyBtn').style.display = 'none';
+            document.getElementById('shooterReveal').classList.remove('hidden');
+        }
+
+        // --- 6. PROPOSAL VIDEO ---
+        function openProposalVideo() {
+            const popup = document.getElementById('popVideo1');
+            popup.style.display = 'flex';
+            const v = document.getElementById('vid1');
+            v.play();
+            
+            // Show button after 8s
+            setTimeout(() => {
+                document.getElementById('yesBtn').classList.remove('hidden');
+                document.getElementById('yesBtn').classList.add('fade-in');
+            }, 8000);
+        }
+
+        // --- 7. COUNTDOWN ---
+        function startCountdownFlow() {
+            nextScreen('s7');
+            startRain();
+            let time = 6;
+            const tDisplay = document.getElementById('timer');
+            
+            const timer = setInterval(() => {
+                time--;
+                tDisplay.innerText = time;
+                if(time <= 0) {
+                    clearInterval(timer);
+                    tDisplay.style.display = 'none';
+                    document.getElementById('giftPopup').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function startRain() {
+            const c = document.getElementById('rainContainer');
+            setInterval(() => {
+                const e = document.createElement('div');
+                e.innerText = '💕';
+                e.classList.add('rain-emoji');
+                e.style.left = Math.random() * 100 + 'vw';
+                e.style.fontSize = Math.random() * 20 + 10 + 'px';
+                e.style.animationDuration = Math.random() * 2 + 2 + 's';
+                c.appendChild(e);
+                setTimeout(()=>e.remove(), 4000);
+            }, 200);
+        }
+
+        // --- 8. FINAL VIDEO ---
+        function playVid2() {
+            const v = document.getElementById('vid2');
+            v.play();
+            setTimeout(() => {
+                document.getElementById('finalHugBtn').classList.remove('hidden');
+                document.getElementById('finalHugBtn').classList.add('fade-in');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
